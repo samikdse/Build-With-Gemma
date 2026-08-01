@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/*
+ * PlainDocs design tokens — evolved from the live reference site's
+ * GOV.UK-inspired look: black masthead, green accent rule, blue links,
+ * square corners, big headings, maximum legibility.
+ */
+@theme {
+  --color-ink: #0b0c0c;
+  --color-ink-soft: #505a5f;
+  --color-paper: #ffffff;
+  --color-mist: #f3f4f6;
+  --color-line: #d9dcde;
+  --color-brand: #00703c; /* green accent from the reference site */
+  --color-brand-soft: #e7f2ec;
+  --color-link: #1d70b8; /* reference-site blue */
+  --color-link-deep: #144e81;
+  --color-warn: #b45309;
+  --color-warn-soft: #fef3e2;
+  --color-alert: #b3261e;
+  --color-alert-soft: #fbeae9;
+  --color-ok: #00703c;
+
+  --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-paper);
+}
+
+/* Focus visibility — GDS yellow, unmistakable for keyboard users. */
+:focus-visible {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+  box-shadow: 0 0 0 5px var(--color-ink);
+}
+
+@keyframes pd-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pd-fade-up {
+  animation: pd-fade-up 160ms ease-out both;
+}
+
+@keyframes pd-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.pd-pulse {
+  animation: pd-pulse 1.2s ease-in-out infinite;
+}
+
+/* Source-segment highlight when arriving via a citation link. */
+.pd-segment-hit {
+  background: #fff8dc;
+  border-left: 4px solid var(--color-warn);
+}

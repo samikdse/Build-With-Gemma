@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { gemmaHealth } from "./gemma/client";
-import { gemmaConfig } from "./gemma/config";
+import { hostedHealth } from "./index";
 
-/** Live engine status for UI chips — polled, never blocks rendering. */
+/** Live engine status for the developer-only indicator dot. */
 
 export interface EngineStatus {
   live: boolean;
@@ -14,42 +13,30 @@ export function useEngineStatus(): EngineStatus {
   const [status, setStatus] = useState<EngineStatus>({
     live: false,
     label: "checking…",
-    detail: "Checking for a local Gemma runtime",
+    detail: "Checking the analysis engine",
   });
 
   useEffect(() => {
     let cancelled = false;
-    const check = async () => {
-      if (gemmaConfig.forceFixtures) {
-        if (!cancelled)
-          setStatus({
-            live: false,
-            label: "validated demo cache",
-            detail: "Validated demo cache — run with VITE_ENGINE=gemma for live Gemma inference",
-          });
-        return;
-      }
-      const h = await gemmaHealth();
+    void (async () => {
+      const h = await hostedHealth();
       if (cancelled) return;
       setStatus(
-        h.ok
+        h.hosted
           ? {
               live: true,
-              label: `Gemma live · ${gemmaConfig.chatModel}`,
-              detail: `Local inference via Ollama at ${gemmaConfig.baseUrl} · embeddings: ${gemmaConfig.embedModel}`,
+              label: `Gemma live${h.model ? ` · ${h.model}` : ""}`,
+              detail: `Hosted Gemma API${h.model ? ` (${h.model})` : ""} — requests run server-side`,
             }
           : {
               live: false,
-              label: "demo fixtures (Gemma offline)",
-              detail: "Ollama is not reachable — demo samples still work from validated cache",
+              label: "validated demo cache",
+              detail: "Hosted Gemma not configured — built-in samples run from the validated cache",
             },
       );
-    };
-    void check();
-    const t = setInterval(check, 30_000);
+    })();
     return () => {
       cancelled = true;
-      clearInterval(t);
     };
   }, []);
 

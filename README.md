@@ -25,33 +25,62 @@ npm run build      # type-check + production build (dist/)
 npm run preview    # serve the production build
 ```
 
-The app works with **zero setup** on deterministic fixtures. To run the live Gemma
-pipeline:
+The app works with **zero setup** on deterministic fixtures.
 
-```bash
-winget install Ollama.Ollama
-ollama pull gemma3:4b
-ollama pull embeddinggemma:300m
-ollama serve
-```
+### Deployment (Vercel)
 
-Then reload the app — the header chip flips to **"Gemma live · gemma3:4b"**. All
-inference is local; no data leaves the machine, no API keys needed. Environment
-variables (all optional, see `.env.example`): `VITE_GEMMA_BASE_URL`,
-`VITE_GEMMA_MODEL`, `VITE_EMBED_MODEL`, `VITE_GEMMA_TIMEOUT_MS`,
-`VITE_ENGINE=fixtures` (force-off switch), `VITE_GEMMA_API_KEY` (hosted endpoints
-only — never committed).
+Production inference runs through the **hosted Gemma API**, called from Vercel
+serverless functions in `/api`. The key is server-side only — it is never sent to
+the browser, never logged, never committed.
+
+Set these in **Vercel → Project → Settings → Environment Variables** (all
+environments), then redeploy:
+
+| Variable | Required | Default |
+|---|---|---|
+| `GEMMA_API_KEY` | **yes** | — |
+| `GEMMA_API_BASE_URL` | no | `https://generativelanguage.googleapis.com` |
+| `GEMMA_MODEL` | no | `gemma-3-27b-it` |
+| `GEMMA_VISION_MODEL` | no | falls back to `GEMMA_MODEL` |
+
+The client calls only relative routes (`/api/analyze`, `/api/translate`,
+`/api/ask`, `/api/health`). Both Google AI Studio and OpenAI-compatible
+endpoints are supported — the shape is detected from the base URL, so one key
+works either way.
 
 ### Reliability hierarchy (non-negotiable)
 
-1. **Live Gemma** — used whenever Ollama is reachable.
-2. **Validated cached output** — if a live call fails on a *built-in sample*, the
-   deterministic fixture result is served, clearly labeled "validated demo cache".
-3. **Recoverable error** — a user's *own* document never silently falls back to demo
-   content (that would fabricate results); they get a clear error with Retry /
-   use-a-sample options. No endless spinners anywhere.
+1. **Hosted Gemma API** — used whenever `GEMMA_API_KEY` is configured.
+2. **Validated cached output** — if a hosted call fails on a *built-in sample*,
+   the deterministic fixture result is served instead.
+3. **Recoverable error** — a user's *own* document never silently falls back to
+   demo content (that would fabricate results); they get a clear message with
+   Retry / use-a-sample. No endless spinners anywhere.
 
-### Which model does what
+### Production request budget
+
+| Operation | Hosted requests |
+|---|---|
+| Analyze a document or photo (reading, extraction, plain language, action steps, missing requirements) | **1** |
+| Translation | **1**, only when a non-English language is selected |
+| Ask CareLens | **1** (retrieval is lexical, client-side — no embedding call) |
+
+The six specialized agent roles are preserved as labelled prompt sections inside
+those requests; only the *execution* is collapsed, for latency.
+
+Deterministic code (not the model) still does: chunking, verbatim quote →
+citation grounding, program screening, date/amount preservation checks,
+citation validation, reminder-date guards, and eligibility-phrase stripping.
+
+### Optional: local Ollama (development only, not used in production)
+
+```bash
+ollama pull gemma3:4b && ollama pull embeddinggemma:300m && ollama serve
+```
+
+Then `VITE_ENGINE=gemma npm run dev`. Not required for deployment.
+
+### Legacy local pipeline (development reference)
 
 | Call | Model | Stage |
 |---|---|---|

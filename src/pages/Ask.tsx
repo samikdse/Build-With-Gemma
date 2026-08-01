@@ -7,7 +7,7 @@ import { SUGGESTED_QUESTIONS } from "../fixtures/ask";
 import type { AskAnswer } from "../types";
 
 /**
- * Ask PlainDocs — grounded Q&A across the user's documents. Answers cite
+ * Ask CareLens — grounded Q&A across the user's documents. Answers cite
  * source segments; when the documents don't contain the answer, it says so.
  */
 export default function Ask() {
@@ -36,7 +36,7 @@ export default function Ask() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="text-3xl font-bold">Ask PlainDocs</h1>
+      <h1 className="text-3xl font-bold">Ask CareLens</h1>
       <p className="mt-1 text-ink-soft">
         Ask about anything in your {docs.length} uploaded document{docs.length !== 1 ? "s" : ""}.
         Answers come only from your documents and always show their sources.

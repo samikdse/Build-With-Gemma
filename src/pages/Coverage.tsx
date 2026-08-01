@@ -15,7 +15,7 @@ export default function Coverage() {
     <div>
       <h1 className="text-3xl font-bold">Coverage & eligibility</h1>
       <p className="mt-1 max-w-2xl text-ink-soft">
-        PlainDocs compares what your documents say with a knowledge base of assistance programs
+        CareLens compares what your documents say with a knowledge base of assistance programs
         and shows <em>possible</em> matches. The official program always makes the final decision.
       </p>
 

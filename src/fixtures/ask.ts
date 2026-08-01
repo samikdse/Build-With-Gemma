@@ -1,7 +1,7 @@
 import type { AskAnswer } from "../types";
 
 /**
- * Cached grounded answers for Ask PlainDocs. Each entry has keyword
+ * Cached grounded answers for Ask CareLens. Each entry has keyword
  * matchers; the fixture provider picks the best match or returns a
  * clearly-labeled "not found" answer. Every claim cites a real segment.
  */
@@ -147,7 +147,7 @@ export const NOT_FOUND_ANSWER = (question: string): AskAnswer => ({
   fromCache: true,
   paragraphs: [
     {
-      text: "I couldn't find this in your uploaded documents. PlainDocs only answers from documents you have added — it does not guess. Try uploading the document that contains this information, or rephrase your question.",
+      text: "I couldn't find this in your uploaded documents. CareLens only answers from documents you have added — it does not guess. Try uploading the document that contains this information, or rephrase your question.",
       citations: [],
     },
   ],

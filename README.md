@@ -1,6 +1,6 @@
-# PlainDocs
+# CareLens
 
-**Understand healthcare paperwork instantly.** Upload a letter, form or notice — get a
+**Understand your healthcare documents.** Upload a letter, form or notice — get a
 plain-language explanation, a translation into your language, numbered action steps,
 possible coverage matches, and reminders for the dates that matter.
 
@@ -9,7 +9,7 @@ Pressure), aimed at the paperwork side of healthcare pressure: confusion, admini
 burden and missed coverage opportunities.
 
 > **Demonstration only.** Every document, person, program, policy number and amount in
-> this app is synthetic. No real personal information. PlainDocs never claims confirmed
+> this app is synthetic. No real personal information. CareLens never claims confirmed
 > eligibility — official programs decide.
 
 ## Run it
@@ -91,7 +91,7 @@ validation, reminder-date guards, and banned-eligibility-phrase stripping.
 | **My Documents** | Search across titles, facts and full text |
 | **Coverage** | Possible program matches with "why", missing info, application steps, disclaimers |
 | **Reminders** | Create/edit/complete/delete; one-click suggestions from documents |
-| **Ask PlainDocs** | Grounded Q&A with clickable citations and honest "not found" |
+| **Ask CareLens** | Grounded Q&A with clickable citations and honest "not found" |
 
 Every generated claim links to a source segment; clicking a citation opens the document's
 source text with the exact passage highlighted. **Reset demo** (top bar) restores the
@@ -114,7 +114,7 @@ call after a cold start pays model-load time). Header chip must read **Gemma liv
 4. **Result page** (30s) — "analyzed live by Gemma" tag; facts marked *verified in
    source* vs *uncertain*; click a citation → exact passage highlights. Spanish
    translation tab. Confirm the proposed reminder (user-confirmed tool call).
-5. **Ask PlainDocs** (30s) — "Is dental care included?" → EmbeddingGemma retrieves
+5. **Ask CareLens** (30s) — "Is dental care included?" → EmbeddingGemma retrieves
    from the *earlier* benefits letter, Gemma answers with citations. Then ask
    something absent → **NOT_FOUND**, no guess.
 6. **Fallback proof** (20s) — kill `ollama serve`, click the other sample: the app

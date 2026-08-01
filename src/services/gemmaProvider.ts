@@ -398,7 +398,7 @@ function notFound(question: string): AskAnswer {
     fromCache: false,
     paragraphs: [
       {
-        text: "Your uploaded documents don't contain the answer to this. PlainDocs only answers from your documents — it does not guess. Try uploading the document that has this information.",
+        text: "Your uploaded documents don't contain the answer to this. CareLens only answers from your documents — it does not guess. Try uploading the document that has this information.",
         citations: [],
       },
     ],

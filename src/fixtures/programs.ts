@@ -3,7 +3,7 @@ import type { CoverageProgram } from "../types";
 /**
  * Local demonstration knowledge base of coverage programs.
  * Every program is FICTIONAL and carries a "(Demo)" suffix.
- * PlainDocs never claims confirmed eligibility against these.
+ * CareLens never claims confirmed eligibility against these.
  */
 export const COVERAGE_PROGRAMS: CoverageProgram[] = [
   {

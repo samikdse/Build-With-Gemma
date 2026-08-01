@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { provider, RecoverableAnalysisError } from "../services";
 import { useEngineStatus } from "../services/engine";
@@ -34,6 +34,13 @@ export default function Upload() {
   const photoRef = useRef<HTMLInputElement>(null);
 
   const langLabel = LANGUAGES.find((l) => l.code === language)?.label ?? "English";
+
+  // "Try a sample" from the homepage lands here and starts immediately.
+  const autoSample = params.get("sample") === "1";
+  useEffect(() => {
+    if (autoSample && phase === "pick") void useSample("dental-form");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoSample]);
 
   async function process(input: UploadInput) {
     setPhase("processing");
@@ -121,23 +128,20 @@ export default function Upload() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <h1 className="text-3xl font-bold">
           {photoMode ? "Take or upload a photo" : "Upload a document"}
         </h1>
+        {/* Developer-only engine indicator (dot + tooltip, no wording) */}
         <span
-          className={`px-2 py-1 text-xs font-bold uppercase tracking-wide ${
-            engine.live ? "bg-brand-soft text-brand" : "bg-warn-soft text-warn"
-          }`}
-          title={engine.detail}
-        >
-          {engine.label}
-        </span>
+          className={`h-2 w-2 rounded-full ${engine.live ? "bg-brand" : "bg-line"}`}
+          title={engine.live ? `Live Gemma — ${engine.detail}` : `Validated demo cache — ${engine.detail}`}
+          aria-hidden
+        />
       </div>
       <p className="mt-2 text-ink-soft">
-        Healthcare letters, insurance papers, benefits statements, government notices. PDF, PNG,
-        JPG or text. Results will appear in <strong>{langLabel}</strong> (change it in the top
-        bar).
+        A letter, form, benefits statement or notice. PDF, PNG, JPG or text. Results appear in{" "}
+        <strong>{langLabel}</strong>.
       </p>
 
       {phase === "error" && (
@@ -212,26 +216,21 @@ export default function Upload() {
         />
       </div>
 
-      {/* Demo samples — analyzed LIVE by Gemma when it's running */}
+      {/* Samples */}
       <div className="mt-6 border border-line bg-paper p-5">
-        <p className="text-sm font-bold uppercase tracking-wide text-ink-soft">Built-in samples</p>
-        <p className="mt-1 text-sm text-ink-soft">
-          {engine.live
-            ? "These run through the live Gemma pipeline like any upload. If a live call fails, the validated cached result is shown instead — clearly labeled."
-            : "Gemma is offline — these will show the validated cached analysis."}
-        </p>
+        <p className="text-sm font-bold">No document handy? Try a sample.</p>
         <div className="mt-3 flex flex-wrap gap-3">
           <button
             onClick={() => void useSample("dental-form")}
             className="border-2 border-ink px-4 py-2 text-sm font-bold hover:bg-mist"
           >
-            📷 Sample: photographed dental form
+            📷 Photo of a dental program form
           </button>
           <button
             onClick={() => void useSample("renewal-notice")}
             className="border-2 border-ink px-4 py-2 text-sm font-bold hover:bg-mist"
           >
-            📄 Sample: government renewal notice
+            📄 Government renewal notice
           </button>
         </div>
       </div>

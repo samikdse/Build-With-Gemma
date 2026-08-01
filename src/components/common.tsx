@@ -119,7 +119,7 @@ export function EligibilityDisclaimer() {
 export function AiDraftNotice() {
   return (
     <p className="text-xs text-ink-soft">
-      Generated from your documents by PlainDocs. Every claim links to its
+      Generated from your documents by CareLens. Every claim links to its
       source — check anything important against the original.
     </p>
   );

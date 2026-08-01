@@ -1,4 +1,4 @@
-/** Canonical domain types for PlainDocs. */
+/** Canonical domain types for CareLens. */
 
 export type LanguageCode =
   | "en"

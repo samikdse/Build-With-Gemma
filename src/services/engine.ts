@@ -22,7 +22,11 @@ export function useEngineStatus(): EngineStatus {
     const check = async () => {
       if (gemmaConfig.forceFixtures) {
         if (!cancelled)
-          setStatus({ live: false, label: "demo fixtures", detail: "VITE_ENGINE=fixtures (forced)" });
+          setStatus({
+            live: false,
+            label: "validated demo cache",
+            detail: "Validated demo cache — run with VITE_ENGINE=gemma for live Gemma inference",
+          });
         return;
       }
       const h = await gemmaHealth();

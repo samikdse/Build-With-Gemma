@@ -16,13 +16,9 @@ import { programById } from "../fixtures/programs";
 import { LANGUAGES, type ExtractedFact } from "../types";
 
 const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "plain", label: "Plain language" },
-  { id: "translation", label: "Translation" },
-  { id: "steps", label: "Action steps" },
-  { id: "info", label: "Important info" },
-  { id: "coverage", label: "Coverage insights" },
-  { id: "source", label: "Source text" },
+  { id: "overview", label: "Summary" },
+  { id: "source", label: "Sources" },
+  { id: "details", label: "Details" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -84,12 +80,13 @@ export default function DocumentView() {
           <div className="flex flex-wrap items-center gap-2">
             <Tag tone="blue">{KIND_LABEL[doc.kind]}</Tag>
             {doc.isImage && <Tag tone="neutral">from photo</Tag>}
-            {doc.engine === "gemma" ? (
-              <Tag tone="green">analyzed live by Gemma</Tag>
-            ) : (
-              <Tag tone="amber">validated demo cache</Tag>
-            )}
-            <Tag tone="green">claims source-linked</Tag>
+            <Tag tone="green">every claim linked to the original</Tag>
+            {/* Developer-only engine indicator: dot + tooltip, not a label. */}
+            <span
+              className={`h-2 w-2 rounded-full ${doc.engine === "gemma" ? "bg-brand" : "bg-line"}`}
+              title={doc.engine === "gemma" ? "Live Gemma" : "Validated demo cache"}
+              aria-hidden
+            />
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{doc.title}</h1>
           <p className="mt-1 text-sm text-ink-soft">
@@ -158,58 +155,32 @@ export default function DocumentView() {
       {/* Body: result beside original */}
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="min-w-0">
-          {tab === "overview" && <Overview doc={doc} addReminder={addReminder} reminderExists={reminderExists} />}
-          {tab === "plain" && (
-            <div className="space-y-5">
-              <p className="text-lg leading-relaxed">{doc.plainSummary}</p>
-              {doc.plain?.whatThisMeans && (
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-                    What this means for you
-                  </h3>
-                  <p className="mt-1 leading-relaxed">{doc.plain.whatThisMeans}</p>
-                </div>
-              )}
-              {doc.plain && doc.plain.attention.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-                    Pay attention to
-                  </h3>
-                  <ul className="mt-1 space-y-1.5">
-                    {doc.plain.attention.map((a, i) => (
-                      <li key={i} className="border-l-4 border-warn bg-warn-soft px-3 py-2 text-sm">
-                        {a}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {doc.plain && doc.plain.unclearTerms.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-                    Words worth knowing
-                  </h3>
-                  <dl className="mt-1 divide-y divide-line border border-line">
-                    {doc.plain.unclearTerms.map((t, i) => (
-                      <div key={i} className="px-4 py-2.5">
-                        <dt className="text-sm font-bold">{t.term}</dt>
-                        <dd className="text-sm text-ink-soft">{t.meaning}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </div>
-              )}
-              <AiDraftNotice />
+          {tab === "overview" && (
+            <Overview
+              doc={doc}
+              addReminder={addReminder}
+              reminderExists={reminderExists}
+              translation={translation}
+              langCode={language}
+              onOpenSources={() => setTab("source")}
+            />
+          )}
+          {tab === "details" && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="mb-2 text-lg font-bold">Everything we found</h2>
+                <ImportantInfo facts={doc.facts} docId={doc.id} />
+              </div>
+              <div>
+                <h2 className="mb-2 text-lg font-bold">Coverage insights</h2>
+                <CoverageTab doc={doc} />
+              </div>
             </div>
           )}
-          {tab === "translation" && <Translation translation={translation} langCode={language} doc={doc} />}
-          {tab === "steps" && <Steps doc={doc} addReminder={addReminder} reminderExists={reminderExists} />}
-          {tab === "info" && <ImportantInfo facts={doc.facts} docId={doc.id} />}
-          {tab === "coverage" && <CoverageTab doc={doc} />}
           {tab === "source" && (
             <div className="space-y-2">
               <p className="text-sm text-ink-soft">
-                The exact text PlainDocs read. Citations elsewhere link to these sections.
+                The exact text CareLens read. Citations elsewhere link to these sections.
               </p>
               {doc.segments.map((s) => (
                 <p
@@ -241,80 +212,125 @@ export default function DocumentView() {
 
 /* ------------------------------------------------------------- sub-views */
 
+/**
+ * Results screen, in the order a worried person actually needs it:
+ * 1 what it says · 2 what matters most · 3 what to do next
+ * 4 important date · 5 add reminder · 6 translation · 7 sources
+ * Technical detail lives in the Details tab, below.
+ */
 function Overview({
   doc,
   addReminder,
   reminderExists,
+  translation,
+  langCode,
+  onOpenSources,
 }: {
   doc: import("../types").AnalyzedDocument;
   addReminder: ReturnType<typeof useStore>["addReminder"];
   reminderExists: (t: string, d: string) => boolean;
+  translation?: import("../types").TranslationBundle;
+  langCode: string;
+  onOpenSources: () => void;
 }) {
   const warnings = doc.facts.filter((f) => f.category === "warning");
+  const attention = [
+    ...(doc.plain?.attention ?? []).map((text) => ({ text, citations: [] as string[] })),
+    ...warnings.map((w) => ({ text: `${w.label}: ${w.value}`, citations: w.citations })),
+  ];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-bold">What this document is</h2>
-        <p className="mt-1 leading-relaxed">{doc.plainSummary}</p>
-        <div className="mt-2">
-          <AiDraftNotice />
-        </div>
-      </div>
+    <div className="space-y-8">
+      {/* 1 — What it says */}
+      <section>
+        <h2 className="text-xl font-bold">What it says</h2>
+        <p className="mt-2 text-lg leading-relaxed">{doc.plainSummary}</p>
+        {doc.plain?.whatThisMeans && (
+          <p className="mt-2 leading-relaxed text-ink-soft">{doc.plain.whatThisMeans}</p>
+        )}
+      </section>
 
-      {doc.needsConfirmation && doc.needsConfirmation.length > 0 && (
-        <div className="border-l-4 border-warn bg-warn-soft px-4 py-3">
-          <p className="text-sm font-bold">Please confirm these yourself</p>
-          <p className="text-xs text-ink-soft">
-            Gemma couldn't read these with confidence, so they are not shown as facts:
-          </p>
-          <ul className="mt-1 list-inside list-disc text-sm">
-            {doc.needsConfirmation.map((n, i) => (
-              <li key={i}>{n}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {warnings.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold">Watch out for</h2>
+      {/* 2 — What matters most */}
+      {attention.length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold">What matters most</h2>
           <div className="mt-2 space-y-2">
-            {warnings.map((w) => (
-              <p key={w.id} className="border-l-4 border-warn bg-warn-soft px-4 py-2.5 text-sm">
-                <strong>{w.label}:</strong> {w.value}{" "}
-                {w.citations.map((c) => (
+            {attention.map((a, i) => (
+              <p key={i} className="border-l-4 border-warn bg-warn-soft px-4 py-3">
+                {a.text}{" "}
+                {a.citations.map((c) => (
                   <CitationChip key={c} documentId={doc.id} segmentId={c} />
                 ))}
               </p>
             ))}
           </div>
-        </div>
-      )}
-
-      {doc.connections.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold">Connected to your other documents</h2>
           {doc.connections.map((c, i) => (
-            <p key={i} className="mt-2 border-l-4 border-link bg-[#eef4fa] px-4 py-2.5 text-sm">
+            <p key={i} className="mt-2 border-l-4 border-link bg-[#eef4fa] px-4 py-3">
               {c.text}{" "}
               <Link to={`/documents/${c.relatedDocumentId}`} className="font-bold text-link">
-                Open related document →
+                Open that document →
               </Link>
             </p>
           ))}
-        </div>
+        </section>
       )}
 
+      {/* 3 — What to do next */}
+      {doc.steps.length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold">What to do next</h2>
+          <ol className="mt-2 space-y-2">
+            {doc.steps.map((s) => (
+              <li key={s.order} className="flex gap-3 border border-line px-4 py-3">
+                <span className="grid h-7 w-7 shrink-0 place-items-center bg-ink text-sm font-bold text-white">
+                  {s.order}
+                </span>
+                <div>
+                  <p className="leading-relaxed">
+                    {s.text}{" "}
+                    {s.citations.map((c) => (
+                      <CitationChip key={c} documentId={doc.id} segmentId={c} />
+                    ))}
+                  </p>
+                  {s.deadline && (
+                    <p className="mt-1 text-sm font-semibold text-warn">
+                      By {fmtDate(s.deadline)}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {/* 4 — Important date */}
+      {doc.keyDate && (
+        <section>
+          <h2 className="text-xl font-bold">Important date</h2>
+          <div className="mt-2 border-l-4 border-brand bg-brand-soft px-5 py-4">
+            <p className="text-sm font-bold uppercase tracking-wide text-brand">
+              {doc.keyDate.label}
+            </p>
+            <p className="text-2xl font-bold">{fmtDate(doc.keyDate.date)}</p>
+          </div>
+        </section>
+      )}
+
+      {/* 5 — Add reminder */}
       {doc.suggestedReminders.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold">Suggested reminders</h2>
+        <section>
+          <h2 className="text-xl font-bold">Add a reminder</h2>
           {doc.suggestedReminders.map((r, i) => {
             const exists = reminderExists(r.title, r.dueAt);
             return (
-              <div key={i} className="mt-2 flex flex-wrap items-center justify-between gap-3 border border-line px-4 py-3">
+              <div
+                key={i}
+                className="mt-2 flex flex-wrap items-center justify-between gap-3 border border-line px-4 py-3"
+              >
                 <div>
-                  <p className="text-sm font-semibold">{r.title}</p>
-                  <p className="text-xs text-ink-soft">
+                  <p className="font-semibold">{r.title}</p>
+                  <p className="text-sm text-ink-soft">
                     {fmtDate(r.dueAt)} — {r.reason}
                   </p>
                 </div>
@@ -323,19 +339,44 @@ function Overview({
                   onClick={() =>
                     addReminder({ title: r.title, dueAt: r.dueAt, reason: r.reason, documentId: doc.id })
                   }
-                  className={`px-4 py-2 text-sm font-bold ${
+                  className={`px-5 py-2.5 font-bold ${
                     exists
                       ? "cursor-default bg-mist text-ink-soft"
                       : "bg-brand text-white shadow-[0_2px_0_#00542d] hover:bg-[#005a30]"
                   }`}
                 >
-                  {exists ? "✓ Reminder set" : "Set reminder"}
+                  {exists ? "✓ Reminder added" : "Add reminder"}
                 </button>
               </div>
             );
           })}
-        </div>
+        </section>
       )}
+
+      {/* 6 — Translation */}
+      <section>
+        <h2 className="text-xl font-bold">Translation</h2>
+        <div className="mt-2">
+          <Translation translation={translation} langCode={langCode} doc={doc} />
+        </div>
+      </section>
+
+      {/* 7 — Sources */}
+      <section>
+        <h2 className="text-xl font-bold">Sources</h2>
+        <p className="mt-1 text-ink-soft">
+          Every statement above comes from the original document. Nothing is invented.
+        </p>
+        <button
+          onClick={onOpenSources}
+          className="mt-3 border-2 border-ink px-5 py-2.5 font-bold hover:bg-mist"
+        >
+          See the original text
+        </button>
+        <div className="mt-3">
+          <AiDraftNotice />
+        </div>
+      </section>
     </div>
   );
 }
@@ -387,61 +428,6 @@ function Translation({
       <p className="text-xs text-ink-soft" dir="ltr">
         Names, dates, amounts and identifiers are kept exactly as in the original.
       </p>
-    </div>
-  );
-}
-
-function Steps({
-  doc,
-  addReminder,
-  reminderExists,
-}: {
-  doc: import("../types").AnalyzedDocument;
-  addReminder: ReturnType<typeof useStore>["addReminder"];
-  reminderExists: (t: string, d: string) => boolean;
-}) {
-  return (
-    <div className="space-y-4">
-      <ol className="space-y-2">
-        {doc.steps.map((s) => (
-          <li key={s.order} className="flex gap-3 border border-line px-4 py-3">
-            <span className="grid h-7 w-7 shrink-0 place-items-center bg-ink text-sm font-bold text-white">
-              {s.order}
-            </span>
-            <div>
-              <p className="leading-relaxed">
-                {s.text}{" "}
-                {s.citations.map((c) => (
-                  <CitationChip key={c} documentId={doc.id} segmentId={c} />
-                ))}
-              </p>
-              {s.deadline && (
-                <p className="mt-1 text-sm font-semibold text-warn">Deadline: {fmtDate(s.deadline)}</p>
-              )}
-            </div>
-          </li>
-        ))}
-      </ol>
-      {doc.suggestedReminders.map((r, i) => {
-        const exists = reminderExists(r.title, r.dueAt);
-        return (
-          <button
-            key={i}
-            disabled={exists}
-            onClick={() =>
-              addReminder({ title: r.title, dueAt: r.dueAt, reason: r.reason, documentId: doc.id })
-            }
-            className={`px-4 py-2 text-sm font-bold ${
-              exists
-                ? "cursor-default bg-mist text-ink-soft"
-                : "bg-brand text-white shadow-[0_2px_0_#00542d] hover:bg-[#005a30]"
-            }`}
-          >
-            {exists ? "✓ Reminder set" : `Set reminder: ${r.title}`}
-          </button>
-        );
-      })}
-      <AiDraftNotice />
     </div>
   );
 }

@@ -6,10 +6,9 @@ import { useEngineStatus } from "../services/engine";
 
 const NAV = [
   { to: "/", label: "Home", end: true },
-  { to: "/documents", label: "My Documents" },
+  { to: "/documents", label: "Documents" },
   { to: "/coverage", label: "Coverage" },
   { to: "/reminders", label: "Reminders" },
-  { to: "/ask", label: "Ask PlainDocs" },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -30,16 +29,14 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-4 py-3 md:px-6">
           <div className="flex items-center gap-3">
             <Link to="/" className="text-2xl font-bold tracking-tight text-white no-underline">
-              PlainDocs
+              CareLens
             </Link>
+            {/* Developer-only engine indicator: a small dot, no wording. */}
             <span
-              className={`hidden px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide md:inline-block ${
-                engine.live ? "bg-brand text-white" : "bg-white/15 text-white/80"
-              }`}
-              title={engine.detail}
-            >
-              {engine.label}
-            </span>
+              className={`h-2 w-2 rounded-full ${engine.live ? "bg-brand" : "bg-white/30"}`}
+              title={engine.live ? `Live Gemma — ${engine.detail}` : `Validated demo cache — ${engine.detail}`}
+              aria-hidden
+            />
           </div>
           <div className="flex items-center gap-3">
             <label className="sr-only" htmlFor="lang">
@@ -99,12 +96,11 @@ export function Shell({ children }: { children: ReactNode }) {
       <footer className="border-t border-line bg-mist">
         <div className="mx-auto max-w-[1100px] px-4 py-6 text-xs text-ink-soft md:px-6">
           <p className="font-semibold">
-            PlainDocs organizes and explains your documents. It does not give medical, legal or
+            CareLens organizes and explains your documents. It does not give medical, legal or
             financial advice, and it never decides eligibility — official programs do.
           </p>
-          <p className="mt-1">
-            Engine: {engine.live ? engine.detail : `${engine.label} — ${engine.detail}`} · Built
-            for the Build With Gemma hackathon · Synthetic data only
+          <p className="mt-1" title={engine.detail}>
+            CareLens · Built for the Build With Gemma hackathon · Synthetic demonstration data only
           </p>
         </div>
       </footer>

@@ -16,11 +16,22 @@ export interface GemmaConfig {
   forceFixtures: boolean;
 }
 
+/**
+ * Engine selection.
+ *
+ * DEFAULT = validated demo cache. On CPU-only machines a full live pass takes
+ * minutes, which is unusable for a recording, so the deterministic fixtures
+ * drive the demo by default.
+ *
+ * The verified live Gemma pipeline is fully intact — opt in with:
+ *   VITE_ENGINE=gemma npm run dev
+ */
+
 export const gemmaConfig: GemmaConfig = {
   baseUrl: (import.meta.env.VITE_GEMMA_BASE_URL ?? "http://localhost:11434").replace(/\/$/, ""),
   chatModel: import.meta.env.VITE_GEMMA_MODEL ?? "gemma3:4b",
   embedModel: import.meta.env.VITE_EMBED_MODEL ?? "embeddinggemma:300m",
   apiKey: import.meta.env.VITE_GEMMA_API_KEY || undefined,
   timeoutMs: Number(import.meta.env.VITE_GEMMA_TIMEOUT_MS ?? 180_000),
-  forceFixtures: import.meta.env.VITE_ENGINE === "fixtures",
+  forceFixtures: import.meta.env.VITE_ENGINE !== "gemma",
 };

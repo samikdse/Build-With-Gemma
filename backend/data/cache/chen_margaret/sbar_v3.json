@@ -1,0 +1,101 @@
+{
+  "output_id": "ao.sbar.v3",
+  "kind": "sbar",
+  "patient_id": "pt.chen_margaret",
+  "state_version": 3,
+  "content": {
+    "situation": [
+      {
+        "text": "Margaret Chen, 72, Bed 4. Presented 13:20 by EMS with central chest pressure and shortness of breath, onset approximately 12:40.",
+        "sources": ["doc.triage_note#p01", "doc.ems_run_sheet#p01", "doc.ems_run_sheet#p02"]
+      },
+      {
+        "text": "Pain increased from 6/10 to 8/10 at 14:20, now radiating to the left arm; shortness of breath persists.",
+        "sources": ["doc.nursing_reassess#p01", "doc.triage_note#p04"]
+      },
+      {
+        "text": "Troponin I resulted 14:26: 0.42 ng/mL (reference < 0.04), flagged critical by the laboratory. Not yet acknowledged.",
+        "sources": ["doc.lab_troponin_2#p01"]
+      }
+    ],
+    "background": [
+      {
+        "text": "Atrial fibrillation (2021); segmental pulmonary embolism, right lower lobe, March 2023; hypertension.",
+        "sources": ["doc.discharge_2023_03#p03", "doc.discharge_2023_03#p02"]
+      },
+      {
+        "text": "Documented medications: warfarin 5 mg daily, metoprolol tartrate 25 mg twice daily, amlodipine 5 mg daily — list last reconciled 2025-06-02, approximately 14 months ago.",
+        "sources": ["doc.med_list#p02", "doc.med_list#p01"]
+      },
+      {
+        "text": "Allergy records conflict: 2023 discharge summary documents penicillin allergy (rash); today's triage note records no known drug allergies. Unresolved — requires confirmation.",
+        "sources": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"]
+      },
+      {
+        "text": "Aspirin 324 mg given by EMS at 13:05 per protocol.",
+        "sources": ["doc.ems_run_sheet#p04"]
+      }
+    ],
+    "current_state": [
+      {
+        "text": "14:20 vitals: BP 156/90, HR 108 irregular, RR 22, SpO2 93% on room air.",
+        "sources": ["doc.nursing_reassess#p02"]
+      },
+      {
+        "text": "ECG (13:41): atrial fibrillation ~96, no acute ST-segment elevation, non-specific lateral T-wave flattening. No prior ECG available for comparison.",
+        "sources": ["doc.ecg_report#p01", "doc.ecg_report#p02"]
+      },
+      {
+        "text": "Creatinine 1.0 mg/dL, eGFR 57 (13:55). No INR value in the available records despite documented warfarin therapy.",
+        "sources": ["doc.labs_initial#p02", "doc.med_list#p02"]
+      },
+      {
+        "text": "ED physician notified of reassessment findings at 14:22.",
+        "sources": ["doc.nursing_reassess#p03"]
+      }
+    ],
+    "outstanding": [
+      {
+        "text": "Cardiology consultation placed 13:52 — no callback yet; past the expected callback window.",
+        "sources": ["doc.nursing_initial#p03", "doc.nursing_reassess#p03"]
+      },
+      {
+        "text": "Critical troponin result (14:26) awaiting acknowledgement.",
+        "sources": ["doc.lab_troponin_2#p01", "doc.lab_troponin_2#p02"]
+      },
+      {
+        "text": "Allergy status unconfirmed — records disagree.",
+        "sources": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"]
+      },
+      {
+        "text": "No INR on file; medication list 14 months old — reconciliation not yet done this encounter.",
+        "sources": ["doc.med_list#p01", "doc.med_list#p02"]
+      }
+    ]
+  },
+  "citations": [
+    "doc.triage_note#p01",
+    "doc.triage_note#p02",
+    "doc.triage_note#p04",
+    "doc.ems_run_sheet#p01",
+    "doc.ems_run_sheet#p02",
+    "doc.ems_run_sheet#p04",
+    "doc.discharge_2023_03#p02",
+    "doc.discharge_2023_03#p03",
+    "doc.discharge_2023_03#p05",
+    "doc.med_list#p01",
+    "doc.med_list#p02",
+    "doc.ecg_report#p01",
+    "doc.ecg_report#p02",
+    "doc.labs_initial#p02",
+    "doc.nursing_initial#p03",
+    "doc.nursing_reassess#p01",
+    "doc.nursing_reassess#p02",
+    "doc.nursing_reassess#p03",
+    "doc.lab_troponin_2#p01",
+    "doc.lab_troponin_2#p02"
+  ],
+  "model": "fixture",
+  "from_cache": true,
+  "status": "draft"
+}

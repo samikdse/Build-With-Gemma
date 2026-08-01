@@ -1,0 +1,114 @@
+{
+  "output_id": "ao.brief.v1",
+  "kind": "brief",
+  "patient_id": "pt.chen_margaret",
+  "state_version": 1,
+  "content": {
+    "one_liner": {
+      "text": "72-year-old woman with atrial fibrillation and a prior pulmonary embolism, on warfarin, presenting with chest pain and shortness of breath.",
+      "sources": ["doc.triage_note#p01", "doc.discharge_2023_03#p03", "doc.discharge_2023_03#p02", "doc.med_list#p02"]
+    },
+    "chief_complaint": {
+      "text": "Chest pain and shortness of breath, onset approximately 12:40; arrived by EMS 13:20.",
+      "sources": ["doc.triage_note#p01", "doc.ems_run_sheet#p01"]
+    },
+    "relevant_history": [
+      {
+        "text": "Atrial fibrillation (2021), rate-controlled on metoprolol at last cardiology review.",
+        "sources": ["doc.discharge_2023_03#p03", "doc.cardiology_2023_05#p02"]
+      },
+      {
+        "text": "Segmental pulmonary embolism, right lower lobe, March 2023; anticoagulation started that admission.",
+        "sources": ["doc.discharge_2023_03#p02"]
+      },
+      {
+        "text": "Hypertension.",
+        "sources": ["doc.discharge_2023_03#p03"]
+      }
+    ],
+    "active_medications": [
+      {
+        "text": "Warfarin 5 mg PO once daily (anticoagulant).",
+        "sources": ["doc.med_list#p02"]
+      },
+      {
+        "text": "Metoprolol tartrate 25 mg PO twice daily.",
+        "sources": ["doc.med_list#p02"]
+      },
+      {
+        "text": "Amlodipine 5 mg PO once daily.",
+        "sources": ["doc.med_list#p02"]
+      },
+      {
+        "text": "Medication list last reconciled 2025-06-02 — approximately 14 months before this encounter.",
+        "sources": ["doc.med_list#p01"]
+      }
+    ],
+    "allergies": {
+      "text": "CONFLICTING — a 2023 discharge summary documents a penicillin allergy (rash); today's triage note records no known drug allergies. Requires confirmation.",
+      "sources": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"]
+    },
+    "current_findings": [
+      {
+        "text": "Pain 6/10, central, pressure-like at triage (13:28).",
+        "sources": ["doc.triage_note#p04"]
+      },
+      {
+        "text": "ECG (13:41): atrial fibrillation ~96, no acute ST-segment elevation, non-specific lateral T-wave flattening.",
+        "sources": ["doc.ecg_report#p01"]
+      },
+      {
+        "text": "13:45 vitals: BP 150/88, HR 96 irregular, RR 20, SpO2 94% on room air.",
+        "sources": ["doc.nursing_initial#p02"]
+      },
+      {
+        "text": "Aspirin 324 mg given by EMS at 13:05 per protocol.",
+        "sources": ["doc.ems_run_sheet#p04"]
+      },
+      {
+        "text": "Creatinine 1.0 mg/dL, eGFR 57 (13:55).",
+        "sources": ["doc.labs_initial#p02"]
+      }
+    ],
+    "outstanding": [
+      {
+        "text": "Troponin I pending — collected 13:50.",
+        "sources": ["doc.labs_initial#p03"]
+      },
+      {
+        "text": "Cardiology consultation placed 13:52 — awaiting callback.",
+        "sources": ["doc.nursing_initial#p03"]
+      },
+      {
+        "text": "No INR result on file despite documented warfarin therapy.",
+        "sources": ["doc.med_list#p02", "doc.discharge_2023_03#p04"]
+      },
+      {
+        "text": "Allergy status requires confirmation — records disagree.",
+        "sources": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"]
+      }
+    ]
+  },
+  "citations": [
+    "doc.triage_note#p01",
+    "doc.triage_note#p02",
+    "doc.triage_note#p04",
+    "doc.ems_run_sheet#p01",
+    "doc.ems_run_sheet#p04",
+    "doc.med_list#p01",
+    "doc.med_list#p02",
+    "doc.discharge_2023_03#p02",
+    "doc.discharge_2023_03#p03",
+    "doc.discharge_2023_03#p04",
+    "doc.discharge_2023_03#p05",
+    "doc.cardiology_2023_05#p02",
+    "doc.ecg_report#p01",
+    "doc.nursing_initial#p02",
+    "doc.nursing_initial#p03",
+    "doc.labs_initial#p02",
+    "doc.labs_initial#p03"
+  ],
+  "model": "fixture",
+  "from_cache": true,
+  "status": "draft"
+}

@@ -1,0 +1,19 @@
+{
+  "patient": {
+    "patient_id": "pt.chen_margaret",
+    "name": "Margaret Chen",
+    "age": 72,
+    "sex": "F",
+    "date_of_birth": "1954-02-17",
+    "mrn": "SYN-000142",
+    "synthetic": true
+  },
+  "encounter": {
+    "encounter_id": "enc.chen_2026_08_01",
+    "patient_id": "pt.chen_margaret",
+    "bed": "4",
+    "chief_complaint": "Chest pain and shortness of breath",
+    "arrived_at": "2026-08-01T13:20:00Z",
+    "status": "awaiting_cardiology"
+  }
+}

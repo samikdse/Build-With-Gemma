@@ -1,0 +1,18 @@
+{
+  "output_id": "ao.issue.med_list_stale",
+  "kind": "issue_explanation",
+  "patient_id": "pt.chen_margaret",
+  "state_version": 1,
+  "content": {
+    "issue_id": "is.med_list_stale",
+    "title": "Medication list may be outdated",
+    "explanation": {
+      "text": "The most recent medication reconciliation on file was completed at a family medicine visit on 2025-06-02, approximately 14 months before this encounter. The list may not reflect current medications; it has not been shown to be incorrect.",
+      "sources": ["doc.med_list#p01"]
+    }
+  },
+  "citations": ["doc.med_list#p01"],
+  "model": "fixture",
+  "from_cache": true,
+  "status": "draft"
+}

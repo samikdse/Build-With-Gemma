@@ -1,0 +1,26 @@
+{
+  "output_id": "ao.issue.allergy_conflict",
+  "kind": "issue_explanation",
+  "patient_id": "pt.chen_margaret",
+  "state_version": 1,
+  "content": {
+    "issue_id": "is.allergy_conflict",
+    "title": "Allergy records disagree",
+    "explanation": {
+      "text": "The March 2023 discharge summary documents a penicillin allergy with rash. Today's triage note records no known drug allergies. These records disagree; both sources are shown. Which record is correct is a clinical determination — this system does not decide.",
+      "sources": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"]
+    },
+    "record_a": {
+      "text": "Penicillin — rash, documented during the March 2023 admission per patient report.",
+      "sources": ["doc.discharge_2023_03#p05"]
+    },
+    "record_b": {
+      "text": "No known drug allergies reported by patient at triage today (13:28).",
+      "sources": ["doc.triage_note#p02"]
+    }
+  },
+  "citations": ["doc.discharge_2023_03#p05", "doc.triage_note#p02"],
+  "model": "fixture",
+  "from_cache": true,
+  "status": "draft"
+}

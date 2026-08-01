@@ -1,0 +1,14 @@
+{
+  "question": "What is her most recent echocardiogram result?",
+  "status": "not_found",
+  "answer": [
+    {
+      "text": "NOT_FOUND: The available records do not contain an echocardiogram report or ejection fraction value. An echocardiogram report or cardiology imaging record would be needed to answer this.",
+      "sources": []
+    }
+  ],
+  "citations": [],
+  "searched": { "passages": 29, "documents": 8, "used": 0 },
+  "model": "fixture",
+  "from_cache": true
+}

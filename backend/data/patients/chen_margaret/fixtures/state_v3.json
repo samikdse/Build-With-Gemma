@@ -1,0 +1,178 @@
+{
+  "state_id": "st.chen.v3",
+  "patient_id": "pt.chen_margaret",
+  "version": 3,
+  "created_at": "2026-08-01T14:26:30Z",
+  "trigger": { "type": "event", "event_id": "ev.troponin_result" },
+  "parent_version": 2,
+  "demographics": { "name": "Margaret Chen", "age": 72, "sex": "F", "bed": "4" },
+  "encounter": {
+    "chief_complaint": "Chest pain and shortness of breath",
+    "arrived_at": "2026-08-01T13:20:00Z",
+    "status": "awaiting_cardiology"
+  },
+  "problems": [
+    {
+      "fact_id": "f.problem_af",
+      "label": "Atrial fibrillation (2021)",
+      "active": true,
+      "sources": ["doc.discharge_2023_03#p03", "doc.cardiology_2023_05#p02"]
+    },
+    {
+      "fact_id": "f.problem_pe_2023",
+      "label": "Pulmonary embolism, segmental, right lower lobe (March 2023)",
+      "active": false,
+      "sources": ["doc.discharge_2023_03#p02"]
+    },
+    {
+      "fact_id": "f.problem_htn",
+      "label": "Hypertension",
+      "active": true,
+      "sources": ["doc.discharge_2023_03#p03"]
+    }
+  ],
+  "medications": [
+    {
+      "fact_id": "f.med_warfarin",
+      "name": "Warfarin",
+      "dose": "5 mg",
+      "route": "PO",
+      "frequency": "once daily",
+      "drug_class": "anticoagulant",
+      "last_reconciled": "2025-06-02",
+      "stale": true,
+      "sources": ["doc.med_list#p02", "doc.discharge_2023_03#p04"]
+    },
+    {
+      "fact_id": "f.med_metoprolol",
+      "name": "Metoprolol tartrate",
+      "dose": "25 mg",
+      "route": "PO",
+      "frequency": "twice daily",
+      "drug_class": "beta_blocker",
+      "last_reconciled": "2025-06-02",
+      "stale": true,
+      "sources": ["doc.med_list#p02"]
+    },
+    {
+      "fact_id": "f.med_amlodipine",
+      "name": "Amlodipine",
+      "dose": "5 mg",
+      "route": "PO",
+      "frequency": "once daily",
+      "drug_class": "calcium_channel_blocker",
+      "last_reconciled": "2025-06-02",
+      "stale": true,
+      "sources": ["doc.med_list#p02"]
+    }
+  ],
+  "allergies": {
+    "status": "conflicting",
+    "entries": ["f.allergy_penicillin", "f.allergy_nkda"]
+  },
+  "vitals": [
+    {
+      "type": "pain_score",
+      "value": 8,
+      "unit": "/10",
+      "detail": "radiating to left arm",
+      "recorded_at": "2026-08-01T14:20:00Z",
+      "sources": ["doc.nursing_reassess#p01"]
+    },
+    {
+      "type": "heart_rate",
+      "value": 108,
+      "unit": "bpm",
+      "detail": "irregular",
+      "recorded_at": "2026-08-01T14:20:00Z",
+      "sources": ["doc.nursing_reassess#p02"]
+    },
+    {
+      "type": "blood_pressure",
+      "value": "156/90",
+      "unit": "mmHg",
+      "recorded_at": "2026-08-01T14:20:00Z",
+      "sources": ["doc.nursing_reassess#p02"]
+    },
+    {
+      "type": "resp_rate",
+      "value": 22,
+      "unit": "/min",
+      "recorded_at": "2026-08-01T14:20:00Z",
+      "sources": ["doc.nursing_reassess#p02"]
+    },
+    {
+      "type": "spo2",
+      "value": "93%",
+      "detail": "room air",
+      "recorded_at": "2026-08-01T14:20:00Z",
+      "sources": ["doc.nursing_reassess#p02"]
+    }
+  ],
+  "results": [
+    {
+      "name": "ECG",
+      "status": "resulted",
+      "value": "Atrial fibrillation ~96, no acute ST-segment elevation, non-specific lateral T-wave flattening",
+      "flag": null,
+      "resulted_at": "2026-08-01T13:41:00Z",
+      "acknowledged": true,
+      "sources": ["doc.ecg_report#p01"]
+    },
+    {
+      "name": "Creatinine",
+      "status": "resulted",
+      "value": "1.0",
+      "unit": "mg/dL",
+      "flag": "normal",
+      "collected_at": "2026-08-01T13:50:00Z",
+      "resulted_at": "2026-08-01T13:55:00Z",
+      "acknowledged": true,
+      "sources": ["doc.labs_initial#p02"]
+    },
+    {
+      "name": "Troponin I",
+      "status": "resulted",
+      "value": "0.42",
+      "unit": "ng/mL",
+      "flag": "critical",
+      "collected_at": "2026-08-01T13:50:00Z",
+      "resulted_at": "2026-08-01T14:26:00Z",
+      "acknowledged": false,
+      "sources": ["doc.lab_troponin_2#p01"]
+    }
+  ],
+  "tasks": [
+    { "task_id": "tk.troponin_initial", "status": "complete", "overdue": false },
+    { "task_id": "tk.cardiology_consult", "status": "pending", "overdue": true }
+  ],
+  "timeline": ["tl.0001", "tl.0002", "tl.0003", "tl.0004", "tl.0005", "tl.0006", "tl.0007"],
+  "issues": [
+    "is.allergy_conflict",
+    "is.med_list_stale",
+    "is.inr_missing",
+    "is.echo_missing",
+    "is.code_status_missing"
+  ],
+  "facts": [
+    "f.problem_af",
+    "f.problem_htn",
+    "f.problem_pe_2023",
+    "f.allergy_penicillin",
+    "f.allergy_nkda",
+    "f.med_warfarin",
+    "f.med_metoprolol",
+    "f.med_amlodipine",
+    "f.cc_presentation",
+    "f.ems_aspirin",
+    "f.vital_pain_initial",
+    "f.vitals_initial",
+    "f.result_ecg",
+    "f.result_creatinine",
+    "f.result_troponin_pending",
+    "f.vital_pain_reassess",
+    "f.vitals_reassess",
+    "f.sob_persists",
+    "f.result_troponin_1"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "output_id": "ao.changes.v1_v2",
+  "kind": "change_narrative",
+  "patient_id": "pt.chen_margaret",
+  "state_version": 2,
+  "content": {
+    "from_version": 1,
+    "to_version": 2,
+    "headline": "Nursing reassessment filed at 14:20",
+    "narrative": [
+      {
+        "text": "Pain increased from 6/10 to 8/10 at 14:20, now radiating to the left arm — radiation was not reported at triage.",
+        "sources": ["doc.nursing_reassess#p01", "doc.triage_note#p04"]
+      },
+      {
+        "text": "Shortness of breath persists, unchanged from the initial assessment.",
+        "sources": ["doc.nursing_reassess#p01"]
+      },
+      {
+        "text": "14:20 vitals: BP 156/90 (from 150/88), HR 108 irregular (from 96), RR 22 (from 20), SpO2 93% on room air (from 94%).",
+        "sources": ["doc.nursing_reassess#p02", "doc.nursing_initial#p02"]
+      },
+      {
+        "text": "ED physician notified of reassessment findings at 14:22. Cardiology callback still awaited.",
+        "sources": ["doc.nursing_reassess#p03"]
+      }
+    ]
+  },
+  "citations": [
+    "doc.nursing_reassess#p01",
+    "doc.nursing_reassess#p02",
+    "doc.nursing_reassess#p03",
+    "doc.nursing_initial#p02",
+    "doc.triage_note#p04"
+  ],
+  "model": "fixture",
+  "from_cache": true,
+  "status": "draft"
+}

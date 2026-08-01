@@ -2,7 +2,7 @@ import { NavLink, Link, useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import { useStore } from "../services/store";
 import { LANGUAGES, type LanguageCode } from "../types";
-import { provider } from "../services";
+import { useEngineStatus } from "../services/engine";
 
 const NAV = [
   { to: "/", label: "Home", end: true },
@@ -15,6 +15,7 @@ const NAV = [
 export function Shell({ children }: { children: ReactNode }) {
   const { language, setLanguage, resetDemo } = useStore();
   const navigate = useNavigate();
+  const engine = useEngineStatus();
 
   return (
     <div className="min-h-screen flex flex-col bg-paper">
@@ -27,9 +28,19 @@ export function Shell({ children }: { children: ReactNode }) {
       {/* Masthead — evolved from the reference site */}
       <header className="bg-ink text-white border-b-8 border-brand">
         <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-4 py-3 md:px-6">
-          <Link to="/" className="text-2xl font-bold tracking-tight text-white no-underline">
-            PlainDocs
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-2xl font-bold tracking-tight text-white no-underline">
+              PlainDocs
+            </Link>
+            <span
+              className={`hidden px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide md:inline-block ${
+                engine.live ? "bg-brand text-white" : "bg-white/15 text-white/80"
+              }`}
+              title={engine.detail}
+            >
+              {engine.label}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             <label className="sr-only" htmlFor="lang">
               Preferred language
@@ -92,8 +103,8 @@ export function Shell({ children }: { children: ReactNode }) {
             financial advice, and it never decides eligibility — official programs do.
           </p>
           <p className="mt-1">
-            Engine: {provider.mode === "fixtures" ? "deterministic demo fixtures (Gemma connects next phase)" : "Gemma (local)"} ·
-            Built for the Build With Gemma hackathon · Synthetic data only
+            Engine: {engine.live ? engine.detail : `${engine.label} — ${engine.detail}`} · Built
+            for the Build With Gemma hackathon · Synthetic data only
           </p>
         </div>
       </footer>

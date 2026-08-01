@@ -20,13 +20,66 @@ npm run dev        # http://localhost:5173
 ```
 
 ```bash
-npm test           # vitest — fixture/citation integrity, provider behaviour, safety language
+npm test           # vitest — deterministic suites + live Gemma evals (skip if Ollama is down)
 npm run build      # type-check + production build (dist/)
 npm run preview    # serve the production build
 ```
 
-No backend, no keys, no network calls — the demo is fully deterministic. Deploys to
-Vercel as a static Vite app (`npm run build`, output `dist/`).
+The app works with **zero setup** on deterministic fixtures. To run the live Gemma
+pipeline:
+
+```bash
+winget install Ollama.Ollama
+ollama pull gemma3:4b
+ollama pull embeddinggemma:300m
+ollama serve
+```
+
+Then reload the app — the header chip flips to **"Gemma live · gemma3:4b"**. All
+inference is local; no data leaves the machine, no API keys needed. Environment
+variables (all optional, see `.env.example`): `VITE_GEMMA_BASE_URL`,
+`VITE_GEMMA_MODEL`, `VITE_EMBED_MODEL`, `VITE_GEMMA_TIMEOUT_MS`,
+`VITE_ENGINE=fixtures` (force-off switch), `VITE_GEMMA_API_KEY` (hosted endpoints
+only — never committed).
+
+### Reliability hierarchy (non-negotiable)
+
+1. **Live Gemma** — used whenever Ollama is reachable.
+2. **Validated cached output** — if a live call fails on a *built-in sample*, the
+   deterministic fixture result is served, clearly labeled "validated demo cache".
+3. **Recoverable error** — a user's *own* document never silently falls back to demo
+   content (that would fabricate results); they get a clear error with Retry /
+   use-a-sample options. No endless spinners anywhere.
+
+### Which model does what
+
+| Call | Model | Stage |
+|---|---|---|
+| Document/image reading + fact extraction (schema-constrained JSON, verbatim quotes) | **gemma3:4b** (multimodal) | 1–2 |
+| Translation (names/dates/amounts preserved) | **gemma3:4b** | 3 |
+| Plain-language simplification | **gemma3:4b** | 4 |
+| Question + corpus embedding, multilingual retrieval | **embeddinggemma:300m** | 5 |
+| Coverage-match explanation (candidates pre-screened by code rules) | **gemma3:4b** | 6 |
+| Action steps + `create_reminder` tool-call proposals | **gemma3:4b** | 7 |
+| Claim verification verdicts | **gemma3:4b** | 8 |
+| Grounded QA over retrieved passages | **gemma3:4b** | Ask |
+
+Deterministic code (not the model) does: ingestion & chunking, quote→segment citation
+grounding, program-rule screening, date/amount preservation checks, citation
+validation, reminder-date guards, and banned-eligibility-phrase stripping.
+
+### Known limitations (honest)
+
+- This dev machine has no usable GPU (Intel UHD 620), so gemma3:4b runs on CPU:
+  ~15–60s per stage, a full image analysis can take 2–4 minutes. The pipeline UI
+  narrates every stage so the wait is legible; on any machine with a GPU it drops
+  to seconds.
+- gemma3:4b occasionally grounds only part of its extracted facts to verbatim
+  quotes; ungrounded facts are shown as **uncertain**, never as verified.
+- Demo translations cover the fixture languages; live translation covers all eight
+  but quality varies with the 4B model — identifiers and amounts are checked
+  deterministically after every translation.
+- Reminders work fully inside the app. There is **no** email/SMS/push delivery.
 
 ## What's in the demo
 
@@ -44,27 +97,31 @@ Every generated claim links to a source segment; clicking a citation opens the d
 source text with the exact passage highlighted. **Reset demo** (top bar) restores the
 starting state at any time.
 
-## Three-minute demo click path
+## Three-minute LIVE demo sequence
 
-1. **Home** — point out the preloaded benefits letter, the deadline list, and the amber
-   "needs attention" row. (15s)
-2. Top bar → switch language to **Español**. (5s)
-3. **Upload a document** → **📷 Sample: photographed dental form** → watch the six-agent
-   pipeline (Document → Translation → Plain-Language → Coverage → Action → Verification)
-   with live logs. (25s)
-4. Result page — read the verification banner ("11 claims checked, 0 unsupported").
-   Overview shows a **connection to the benefits letter** (it *is* the required proof of
-   no-dental-coverage). (30s)
-5. **Translation** tab — full Spanish explanation + numbered steps. (15s)
-6. Overview → **Set reminder** on the suggested Sept 23 deadline. (10s)
-7. **Coverage insights** tab — "You may be eligible" for the dental program, with cited
-   reasons, missing info, and the not-a-guarantee disclaimer. (20s)
-8. **Ask PlainDocs** → "Is dental care included?" → answer cites both documents; click a
-   citation → source text opens with the passage highlighted. Ask something not in the
-   documents → honest "not found". (30s)
-9. **Reminder centre** — the reminder is there; mark done/edit/delete. (10s)
-10. Close: architecture slide — six Gemma agent roles behind one provider interface;
-    fixtures today, local Gemma next; verification strips unsupported claims. (20s)
+Pre-demo: `ollama serve` running, both models pulled, one warm-up call made (first
+call after a cold start pays model-load time). Header chip must read **Gemma live**.
+
+1. **Home** (10s) — preloaded benefits letter, deadlines, "needs attention". Point at
+   the **Gemma live · gemma3:4b** chip: everything runs locally.
+2. Top bar → **Español** (5s).
+3. **Upload** → **📷 Sample: photographed dental form** (60–90s on CPU — narrate over
+   it). The six agents report live: Document Agent transcribes the photo and counts
+   grounded facts; Translation preserves amounts; Coverage screens programs in code
+   then asks Gemma to explain; Action proposes a `create_reminder` tool call;
+   Verification reports claims checked / flagged. *This is the centerpiece — the
+   judges watch real multimodal inference with a verification gate.*
+4. **Result page** (30s) — "analyzed live by Gemma" tag; facts marked *verified in
+   source* vs *uncertain*; click a citation → exact passage highlights. Spanish
+   translation tab. Confirm the proposed reminder (user-confirmed tool call).
+5. **Ask PlainDocs** (30s) — "Is dental care included?" → EmbeddingGemma retrieves
+   from the *earlier* benefits letter, Gemma answers with citations. Then ask
+   something absent → **NOT_FOUND**, no guess.
+6. **Fallback proof** (20s) — kill `ollama serve`, click the other sample: the app
+   flips to "validated demo cache", clearly labeled, zero broken screens. Restart
+   Ollama, chip goes green again.
+7. Close (15s): one provider interface, eight stages, code decides / Gemma writes,
+   unsupported claims never rendered as fact.
 
 ## Architecture
 
@@ -88,20 +145,26 @@ Verification. The Verification Agent's contract is central: claims that can't be
 a source segment are removed or marked uncertain, and the UI shows the checked/kept
 counts on every analysis.
 
-## Live Gemma integration order (next phase — not yet implemented)
+## Gemma pipeline layout
 
-1. **Document Agent** — Gemma 3 multimodal (Ollama, `gemma3:4b`+): image/PDF → structured
-   facts via schema-constrained JSON output. Highest value, hardest to fake.
-2. **Verification Agent** — re-check each generated claim against source segments;
-   strip uncited claims. Do this second so every later agent inherits the safety net.
-3. **Ask PlainDocs** — EmbeddingGemma retrieval over segments + grounded answering with
-   mandatory citations and a NOT_FOUND sentinel.
-4. **Translation + Plain-Language Agents** — on-demand for all eight languages.
-5. **Coverage + Action Agents** — matching against the program KB; tool call
-   (`create_reminder`) for reminder suggestions.
+```
+src/services/
+├── index.ts               # ResilientProvider: live → cached → recoverable error
+├── gemmaProvider.ts       # the eight-stage live pipeline + grounded Ask
+├── fixtureProvider.ts     # deterministic fallback (demo samples)
+└── gemma/
+    ├── config.ts          # model/env configuration layer
+    ├── client.ts          # Ollama chat (schema-constrained) + embeddings + health
+    ├── prompts.ts         # ALL system prompts, versioned (EXTRACT_V1 … ASK_V1)
+    ├── schemas.ts         # JSON Schemas + validators that repair/reject output
+    ├── ingest.ts          # Stage 1: text/PDF/image ingestion, chunking, quote grounding
+    └── retrieval.ts       # Stage 5: EmbeddingGemma multilingual retrieval + vector cache
 
-Wiring point: `src/services/index.ts` — swap `fixtureProvider` for `new GemmaProvider()`.
-Config: copy `.env.example` → `.env`.
+tests/
+├── fixtures.test.ts       # citation integrity + safety language (always runs)
+├── provider.test.ts       # fixture provider behaviour (always runs)
+└── eval.gemma.test.ts     # LIVE eval suite — skips cleanly when Ollama is down
+```
 
 ## License
 

@@ -84,7 +84,12 @@ export default function DocumentView() {
           <div className="flex flex-wrap items-center gap-2">
             <Tag tone="blue">{KIND_LABEL[doc.kind]}</Tag>
             {doc.isImage && <Tag tone="neutral">from photo</Tag>}
-            <Tag tone="green">all claims source-linked</Tag>
+            {doc.engine === "gemma" ? (
+              <Tag tone="green">analyzed live by Gemma</Tag>
+            ) : (
+              <Tag tone="amber">validated demo cache</Tag>
+            )}
+            <Tag tone="green">claims source-linked</Tag>
           </div>
           <h1 className="mt-2 text-3xl font-bold leading-tight">{doc.title}</h1>
           <p className="mt-1 text-sm text-ink-soft">
@@ -99,13 +104,22 @@ export default function DocumentView() {
         )}
       </div>
 
+      {/* Fallback notice — honest about what the user is seeing */}
+      {run?.fallbackReason && (
+        <div className="mt-4 border-l-4 border-warn bg-warn-soft px-4 py-3 text-sm">
+          <strong>Showing the validated cached analysis.</strong> Live Gemma was unavailable
+          ({run.fallbackReason}). Start Ollama and re-upload to run this live.
+        </div>
+      )}
+
       {/* Fresh-analysis banner */}
       {fresh && run && (
         <div className="mt-4 border border-brand bg-brand-soft px-4 py-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold">
               Analysis complete — {run.verification?.checked ?? 0} claims checked against the
-              source, {run.verification?.flagged ?? 0} unsupported claims found.
+              source · {run.verification?.flagged ?? 0} flagged as uncertain · unsupported claims
+              are never shown as fact.
             </p>
             <button
               onClick={() => setShowPipeline((v) => !v)}
@@ -146,8 +160,45 @@ export default function DocumentView() {
         <div className="min-w-0">
           {tab === "overview" && <Overview doc={doc} addReminder={addReminder} reminderExists={reminderExists} />}
           {tab === "plain" && (
-            <div className="space-y-3">
+            <div className="space-y-5">
               <p className="text-lg leading-relaxed">{doc.plainSummary}</p>
+              {doc.plain?.whatThisMeans && (
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+                    What this means for you
+                  </h3>
+                  <p className="mt-1 leading-relaxed">{doc.plain.whatThisMeans}</p>
+                </div>
+              )}
+              {doc.plain && doc.plain.attention.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+                    Pay attention to
+                  </h3>
+                  <ul className="mt-1 space-y-1.5">
+                    {doc.plain.attention.map((a, i) => (
+                      <li key={i} className="border-l-4 border-warn bg-warn-soft px-3 py-2 text-sm">
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {doc.plain && doc.plain.unclearTerms.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+                    Words worth knowing
+                  </h3>
+                  <dl className="mt-1 divide-y divide-line border border-line">
+                    {doc.plain.unclearTerms.map((t, i) => (
+                      <div key={i} className="px-4 py-2.5">
+                        <dt className="text-sm font-bold">{t.term}</dt>
+                        <dd className="text-sm text-ink-soft">{t.meaning}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
               <AiDraftNotice />
             </div>
           )}
@@ -209,6 +260,20 @@ function Overview({
           <AiDraftNotice />
         </div>
       </div>
+
+      {doc.needsConfirmation && doc.needsConfirmation.length > 0 && (
+        <div className="border-l-4 border-warn bg-warn-soft px-4 py-3">
+          <p className="text-sm font-bold">Please confirm these yourself</p>
+          <p className="text-xs text-ink-soft">
+            Gemma couldn't read these with confidence, so they are not shown as facts:
+          </p>
+          <ul className="mt-1 list-inside list-disc text-sm">
+            {doc.needsConfirmation.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {warnings.length > 0 && (
         <div>

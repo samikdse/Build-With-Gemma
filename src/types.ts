@@ -104,6 +104,16 @@ export interface AnalyzedDocument {
   suggestedReminders: SuggestedReminder[];
   /** Cross-document connections discovered during analysis. */
   connections: { text: string; relatedDocumentId: string; citations: string[] }[];
+  /** Which engine produced this analysis. Absent = fixtures (legacy). */
+  engine?: "gemma" | "fixtures";
+  /** Extra plain-language output from the live Plain-Language Agent. */
+  plain?: {
+    whatThisMeans: string;
+    attention: string[];
+    unclearTerms: { term: string; meaning: string }[];
+  };
+  /** Extraction fields Gemma flagged as needing human confirmation. */
+  needsConfirmation?: string[];
 }
 
 export interface CoverageProgram {
@@ -128,10 +138,16 @@ export interface Reminder {
   createdAt: string;
 }
 
+/**
+ * A reminder PROPOSED by the Action Agent as a structured tool call
+ * (create_reminder). Never executed automatically — the user confirms
+ * in the UI before the app saves it.
+ */
 export interface SuggestedReminder {
   title: string;
   dueAt: string;
   reason: string;
+  proposedBy?: "gemma" | "fixture";
 }
 
 /* ------------------------------ agent pipeline ------------------------------ */
@@ -153,7 +169,7 @@ export const AGENTS: { id: AgentId; name: string; description: string }[] = [
   { id: "verification", name: "Verification Agent", description: "Checks every claim against the source text" },
 ];
 
-export type StageStatus = "pending" | "running" | "done" | "skipped";
+export type StageStatus = "pending" | "running" | "done" | "skipped" | "error" | "fallback";
 
 export interface AgentStage {
   agent: AgentId;
@@ -167,6 +183,10 @@ export interface AgentRun {
   stages: AgentStage[];
   startedAt: string;
   finishedAt?: string;
+  /** Which engine actually produced the result. */
+  engine?: "gemma" | "fixtures";
+  /** Set when live Gemma failed and the cached demo result was served. */
+  fallbackReason?: string;
   /** claims checked / claims kept by the Verification Agent */
   verification?: { checked: number; kept: number; flagged: number };
 }

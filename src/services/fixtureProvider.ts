@@ -131,7 +131,10 @@ export class FixtureProvider implements AnalysisProvider {
     return { document, run };
   }
 
-  async ask(question: string): Promise<import("../types").AskAnswer> {
+  async ask(
+    question: string,
+    _documents?: import("../types").AnalyzedDocument[],
+  ): Promise<import("../types").AskAnswer> {
     await sleep(650); // deliberate, believable latency
     const q = question.toLowerCase();
     const hit = ASK_FIXTURES.find((f) => f.matchers.every((m) => q.includes(m)));

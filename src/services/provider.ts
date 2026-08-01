@@ -13,6 +13,10 @@ export interface UploadInput {
   mimeType: string;
   /** Data URL of the uploaded file/photo, when available. */
   dataUrl?: string;
+  /** Decoded text for text uploads. */
+  textContent?: string;
+  /** Set when the user picked a built-in demo sample — enables cached fallback. */
+  sampleId?: "dental-form" | "renewal-notice";
 }
 
 export interface AnalysisProgress {

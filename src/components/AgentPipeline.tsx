@@ -19,9 +19,13 @@ export function AgentPipeline({ run, compact = false }: { run: AgentRun; compact
                 ? "border-link bg-[#f2f7fb]"
                 : status === "done"
                   ? "border-line bg-paper"
-                  : status === "skipped"
-                    ? "border-line bg-mist/60"
-                    : "border-line bg-mist/40 opacity-60"
+                  : status === "error"
+                    ? "border-alert bg-alert-soft"
+                    : status === "fallback"
+                      ? "border-warn bg-warn-soft"
+                      : status === "skipped"
+                        ? "border-line bg-mist/60"
+                        : "border-line bg-mist/40 opacity-60"
             }`}
           >
             <div className="flex items-center justify-between gap-3">
@@ -33,6 +37,8 @@ export function AgentPipeline({ run, compact = false }: { run: AgentRun; compact
                 {status === "done" && stage.ms ? `${(stage.ms / 1000).toFixed(1)}s` : null}
                 {status === "skipped" ? "skipped" : null}
                 {status === "running" ? "working…" : null}
+                {status === "error" ? <span className="font-bold text-alert">failed — continuing</span> : null}
+                {status === "fallback" ? <span className="font-bold text-warn">cached fallback</span> : null}
               </span>
             </div>
             {!compact && <p className="mt-0.5 pl-[22px] text-xs text-ink-soft">{agent.description}</p>}
@@ -53,6 +59,8 @@ export function AgentPipeline({ run, compact = false }: { run: AgentRun; compact
 }
 
 function StatusDot({ status }: { status: string }) {
+  if (status === "error") return <span aria-hidden className="h-3.5 w-3.5 bg-alert" />;
+  if (status === "fallback") return <span aria-hidden className="h-3.5 w-3.5 bg-warn" />;
   if (status === "done")
     return (
       <span aria-hidden className="grid h-3.5 w-3.5 place-items-center bg-brand text-[9px] font-bold text-white">
